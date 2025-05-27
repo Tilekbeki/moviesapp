@@ -1,0 +1,131 @@
+.movie {
+    &-card {
+        position: relative;
+        width: 454px;
+        height: 281px;
+        box-shadow: 0px 4px 12px 0px rgba(34, 60, 80, 0.15);
+        display: grid;
+        grid-template-columns: 183px 268px;
+        grid-template-rows: min-content 129px 36px;
+        grid-template-areas:
+            "image header"
+            "image description"
+            "image rate";
+
+    }
+
+
+    &-title,
+    &-gengres,
+    &-date,
+    &-description,
+    &-rate {
+        padding: 0 20px;
+    }
+
+    &-raiting {
+        border: 2px solid rgb(233, 209, 0);
+        width: 30px;
+        height: 30px;
+        border-radius: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: 9px;
+        top: 12px;
+        color: rgb(0, 0, 0);
+        font-family: Inter;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 22px;
+    }
+
+    &-cover {
+        grid-area: image;
+        width: 183px;
+        height: 281px;
+        object-fit: cover;
+    }
+
+    &-title {
+        grid-area: title;
+        color: rgb(0, 0, 0);
+        font-family: Inter;
+        line-height: 28px;
+        min-height: 22px;
+    }
+
+    &-gengres {
+        grid-area: gengres;
+        align-self: start;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        row-gap: 4px;
+        justify-content: left;
+        min-height: 22px;
+    }
+
+    &-date {
+        height: 22px;
+        grid-area: date;
+        /* @font-size-sm: 12px */
+        color: rgb(130, 126, 126);
+        font-family: Inter;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 22px;
+    }
+
+    &-description {
+        grid-area: description;
+        /* @font-size-sm: 12px */
+        color: rgb(0, 0, 0);
+        font-family: Inter;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 22px;
+        letter-spacing: 0px;
+        text-align: left;
+        align-self: start;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-self: start;
+        margin: 0;
+
+    }
+
+    &-rate {
+        grid-area: rate;
+        align-self: center;
+        width: 239px;
+        padding-right: 0px;
+
+        svg {
+            height: 17px;
+        }
+    }
+
+    &-header {
+        grid-area: header; // можно использовать одну ячейку
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        padding-top: 12px;
+        align-self: start;
+    }
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-rate {
+    font-size: 17px;
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-rate .ant-rate-star:not(:last-child) {
+    margin-inline-end: 5px;
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-tag {
+    margin-inline-end: 0px;
+}

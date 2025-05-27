@@ -1,0 +1,48 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #F7F7F7;
+}
+
+.header {
+    width: 1010px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    padding-top: 20px;
+    padding-bottom: 16px;
+}
+
+.main-content {
+    width: 1010px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    padding: 16px 36px 14px 36px;
+}
+
+@media (max-width: 1200px) {
+    .header {
+        width: 100%;
+        // padding: 20px 16px;
+        padding: 20px 16px;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 20px 16px;
+    }
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-tabs>.ant-tabs-nav .ant-tabs-nav-wrap,
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-tabs>div>.ant-tabs-nav .ant-tabs-nav-wrap {
+    justify-content: center;
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-layout-header {
+    height: unset;
+    ;
+    min-height: 64px;
+}
