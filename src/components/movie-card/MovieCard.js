@@ -1,16 +1,26 @@
 import './MovieCard.scss';
 import { Rate, Typography, Tag } from 'antd';
 import { format } from 'date-fns/format';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+
+import MDBAPIService from '../../services/MDBAPIService'; // Предполагается, что этот метод уже реализован в MDBAPIService.js
 const { Paragraph } = Typography;
-
+import GenresContext from '../context/GenresContext';
 const MovieCard = (props) => {
-  const { id, title, description, gengres, datePublished, rate, img } = props;
-
-  console.log(datePublished);
-  const formattedDate = format(new Date(datePublished), 'MMMM d, yyyy');
+  const { id, title, description, gengres, datePublished = 'не указано', rate, img } = props;
+  const genresContext = useContext(GenresContext);
+  const { rateMovie } = MDBAPIService();
+  useEffect(() => {
+    console.log(genresContext, 'genresContext');
+  }, [genresContext]);
+  const formattedDate =
+    !datePublished || isNaN(new Date(datePublished).getTime())
+      ? 'не указано'
+      : format(new Date(datePublished), 'dd.MM.yyyy');
+  const changedImg = img
+    ? `https://image.tmdb.org/t/p/w500${img}`
+    : 'https://rwvt.ru/wp-content/uploads/b/9/6/b9691e76ab1607dc87c48e7ba611f8ed.jpeg';
   const [userRating, setUserRating] = useState(0);
-
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('rated-movies')) || [];
     const storedRating = saved.find((movie) => movie.id === id)?.user_rating;
@@ -20,7 +30,9 @@ const MovieCard = (props) => {
     }
   }, []);
 
-  const handleRatingChange = (value, id, title, description, gengres, datePublished, rate) => {
+  const handleRatingChange = async (value, id, title, gengres, description, datePublished, rate) => {
+    const response = await rateMovie(id, value);
+    console.log(response, 'response from rateMovie');
     const ratedMovie = {
       id,
       title,
@@ -39,10 +51,12 @@ const MovieCard = (props) => {
     setUserRating(value);
     console.log(value, id);
   };
+
   const gengresList = gengres.map((genre) => {
+    console.log(genre, 'genre');
     return (
       <Tag key={genre} className="movie-gengres-tag">
-        {genre}
+        {genresContext[genre]}
       </Tag>
     );
   });
@@ -54,14 +68,14 @@ const MovieCard = (props) => {
   };
 
   return (
-    <div className="movie-card" key={id}>
-      <img className="movie-cover" src={`https://image.tmdb.org/t/p/w500${img}`} />
+    <div className="movie-card">
+      <img className="movie-cover" src={changedImg} />
       <div className="movie-header">
         <h2 className="movie-title">{title}</h2>
         <span className="movie-date">{formattedDate}</span>
         <div className="movie-gengres">{gengresList}</div>
       </div>
-      <Paragraph className="movie-description">{truncateByWords(description, 30)}</Paragraph>
+      <Paragraph className="movie-description">{truncateByWords(description, 20)}</Paragraph>
 
       <Rate
         className="movie-rate"

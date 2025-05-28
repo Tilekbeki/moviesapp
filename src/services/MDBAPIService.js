@@ -2,7 +2,7 @@ const MDBAPIService = () => {
   var apiKey =
     'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYjg1Y2M0ZTUyOGQ5ZWZkMDlhMmUzZGFiMjJhZWY0NyIsIm5iZiI6MTc0NjcwMjcyMy4wMiwic3ViIjoiNjgxYzkxODNiMWY2MzMxNjQzYzFkYWUzIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.klA2cj5vplGHJ_7HpaRM2PWujRASLknjwt6oa6rhnSI'; // Замените на ключ из настроек TMDb
 
-  const getResource = async (url) => {
+  const getResource = async (url, responseParametrs = 0) => {
     try {
       const urlWay = `https://api.themoviedb.org/3${url}`;
       const options = {
@@ -13,7 +13,7 @@ const MDBAPIService = () => {
         },
       };
 
-      const response = await fetch(urlWay, options)
+      const response = await fetch(urlWay, responseParametrs !== 0 ? responseParametrs : options)
         .then((res) => res.json())
         .catch((err) => console.error(err));
       return response;
@@ -49,7 +49,7 @@ const MDBAPIService = () => {
         const session = JSON.parse(sessionStr);
         const age = Date.now() - session.created_at;
         if (age < oneDay) {
-          return `${session.id} сессия создана!`;
+          return session.id;
         } else {
           console.log('Сессия устарела, создаю новую...');
         }
@@ -61,49 +61,74 @@ const MDBAPIService = () => {
     const newSession = await createGuestSession();
     return newSession.success ? newSession.id : null;
   };
-
+  const getGenres = async () => {
+    const url = '/genre/movie/list?language=en';
+    const response = await getResource(url);
+    if (response && response.genres) {
+      return response.genres;
+    } else {
+      console.error('Ошибка при получении списка жанров:', response);
+      return [];
+    }
+  };
   const getAllMovies = async (page = 1) => {
     const url = `/movie/popular?language=en-US&page=${page}`;
     const response = await getResource(url);
-    const gengres = {
-      28: 'Action',
-      12: 'Adventure',
-      16: 'Animation',
-      35: 'Comedy',
-      80: 'Crime',
-      99: 'Documentary',
-      18: 'Drama',
-      10751: 'Family',
-      14: 'Fantasy',
-      36: 'History',
-      27: 'Horror',
-      10402: 'Music',
-      9648: 'Mystery',
-      10749: 'Romance',
-      878: 'Science Fiction',
-      10770: 'TV Movie',
-      53: 'Thriller',
-      10752: 'War',
-      37: 'Western',
-    };
 
-    response.results.forEach((movie) => {
-      movie.genre_ids = movie.genre_ids.map((id) => gengres[id] || 'Unknown');
+    return response;
+  };
+
+  const searchMovies = async (text, page = 1) => {
+    const title = encodeURIComponent(text);
+    const url = `/search/movie?query=${title}&include_adult=false&language=en-US&page=${page}`;
+    const response = await getResource(url);
+    console.log(response.results);
+    return response;
+  };
+  const rateMovie = async (movieId, rating) => {
+    const sessionId = await checkGuestSession();
+    if (!sessionId) {
+      console.error('Не удалось получить гостевую сессию для рейтинга фильма');
+      return;
+    }
+
+    const url = `/movie/${movieId}/rating?guest_session_id=${sessionId}`;
+    const response = await getResource(url, {
+      method: 'POST',
+      body: JSON.stringify({ value: rating }),
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYjg1Y2M0ZTUyOGQ5ZWZkMDlhMmUzZGFiMjJhZWY0NyIsIm5iZiI6MTc0NjcwMjcyMy4wMiwic3ViIjoiNjgxYzkxODNiMWY2MzMxNjQzYzFkYWUzIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.klA2cj5vplGHJ_7HpaRM2PWujRASLknjwt6oa6rhnSI',
+      },
     });
     return response;
   };
-  const getMoviesByKeyword = async () => {
-    const url = '/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc';
+  const getRatedMovies = async () => {
+    const sessionId = await checkGuestSession();
+    if (!sessionId) {
+      console.error('Не удалось получить гостевую сессию для получения рейтингов');
+      return [];
+    }
+
+    const url = `/guest_session/${sessionId}/rated/movies?language=en-US&page=1`;
     const response = await getResource(url);
-    return response;
+    if (response && response.results) {
+      return response.results;
+    } else {
+      console.error('Ошибка при получении рейтингов фильмов:', response);
+      return [];
+    }
   };
 
   return {
-    getMoviesByKeyword,
-    getResource,
     getAllMovies,
-    createGuestSession,
     checkGuestSession,
+    searchMovies,
+    getGenres,
+    rateMovie,
+    getRatedMovies,
   };
 };
 
