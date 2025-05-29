@@ -2,7 +2,7 @@ const MDBAPIService = () => {
   var apiKey =
     'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYjg1Y2M0ZTUyOGQ5ZWZkMDlhMmUzZGFiMjJhZWY0NyIsIm5iZiI6MTc0NjcwMjcyMy4wMiwic3ViIjoiNjgxYzkxODNiMWY2MzMxNjQzYzFkYWUzIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.klA2cj5vplGHJ_7HpaRM2PWujRASLknjwt6oa6rhnSI'; // Замените на ключ из настроек TMDb
 
-  const getResource = async (url, responseParametrs = 0) => {
+  const getResource = async (url) => {
     try {
       const urlWay = `https://api.themoviedb.org/3${url}`;
       const options = {
@@ -13,7 +13,7 @@ const MDBAPIService = () => {
         },
       };
 
-      const response = await fetch(urlWay, responseParametrs !== 0 ? responseParametrs : options)
+      const response = await fetch(urlWay, options)
         .then((res) => res.json())
         .catch((err) => console.error(err));
       return response;
@@ -91,28 +91,36 @@ const MDBAPIService = () => {
       console.error('Не удалось получить гостевую сессию для рейтинга фильма');
       return;
     }
+    try {
+      const url = `https://api.themoviedb.org/3/movie/${movieId}/rating?guest_session_id=${sessionId}`;
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({ value: rating }),
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json;charset=utf-8',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      };
 
-    const url = `/movie/${movieId}/rating?guest_session_id=${sessionId}`;
-    const response = await getResource(url, {
-      method: 'POST',
-      body: JSON.stringify({ value: rating }),
-      headers: {
-        accept: 'application/json',
-        'Content-Type': 'application/json;charset=utf-8',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYjg1Y2M0ZTUyOGQ5ZWZkMDlhMmUzZGFiMjJhZWY0NyIsIm5iZiI6MTc0NjcwMjcyMy4wMiwic3ViIjoiNjgxYzkxODNiMWY2MzMxNjQzYzFkYWUzIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.klA2cj5vplGHJ_7HpaRM2PWujRASLknjwt6oa6rhnSI',
-      },
-    });
-    return response;
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data, 'rate response');
+      return data;
+    } catch (error) {
+      console.error('Ошибка при отправке рейтинга фильма:', error);
+      throw error;
+    }
   };
-  const getRatedMovies = async () => {
+
+  const getRatedMovies = async (page) => {
     const sessionId = await checkGuestSession();
     if (!sessionId) {
       console.error('Не удалось получить гостевую сессию для получения рейтингов');
       return [];
     }
 
-    const url = `/guest_session/${sessionId}/rated/movies?language=en-US&page=1`;
+    const url = `/guest_session/${sessionId}/rated/movies?language=en-US&page=${page}`;
     const response = await getResource(url);
     if (response && response.results) {
       return response.results;

@@ -10,9 +10,7 @@ const MovieCard = (props) => {
   const { id, title, description, gengres, datePublished = 'не указано', rate, img } = props;
   const genresContext = useContext(GenresContext);
   const { rateMovie } = MDBAPIService();
-  useEffect(() => {
-    console.log(genresContext, 'genresContext');
-  }, [genresContext]);
+
   const formattedDate =
     !datePublished || isNaN(new Date(datePublished).getTime())
       ? 'не указано'
@@ -22,38 +20,22 @@ const MovieCard = (props) => {
     : 'https://rwvt.ru/wp-content/uploads/b/9/6/b9691e76ab1607dc87c48e7ba611f8ed.jpeg';
   const [userRating, setUserRating] = useState(0);
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('rated-movies')) || [];
-    const storedRating = saved.find((movie) => movie.id === id)?.user_rating;
-    if (storedRating) {
+    const userSavedRating = localStorage.getItem(`rated-movie-${id}`);
+    if (userSavedRating) {
       console.log(true);
-      setUserRating(Number(storedRating));
+      setUserRating(Number(userSavedRating));
     }
   }, []);
 
-  const handleRatingChange = async (value, id, title, gengres, description, datePublished, rate) => {
-    const response = await rateMovie(id, value);
-    console.log(response, 'response from rateMovie');
-    const ratedMovie = {
-      id,
-      title,
-      poster_path: img,
-      overview: description,
-      genre_ids: gengres,
-      release_date: datePublished,
-      vote_average: rate,
-      user_rating: value,
-    };
-    const existing = JSON.parse(localStorage.getItem('rated-movies')) || [];
-
-    // Обновляем или добавляем фильм
-    const updated = [...existing.filter((m) => m.id !== id), ratedMovie];
-    localStorage.setItem('rated-movies', JSON.stringify(updated));
+  const handleRatingChange = async (value, id) => {
+    const rateMovieResponse = await rateMovie(id, value);
+    if (rateMovieResponse.success) {
+      localStorage.setItem(`rated-movie-${id}`, value);
+    }
     setUserRating(value);
-    console.log(value, id);
   };
 
   const gengresList = gengres.map((genre) => {
-    console.log(genre, 'genre');
     return (
       <Tag key={genre} className="movie-gengres-tag">
         {genresContext[genre]}

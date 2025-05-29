@@ -1,5 +1,5 @@
-import './MoviesList.scss';
 import { useEffect, useState } from 'react';
+import './MoviesList.scss';
 import { Pagination } from 'antd';
 
 import Spinner from '../spinner/Spinner';
@@ -9,85 +9,68 @@ import MDBAPIService from '../../services/MDBAPIService';
 const MoviesList = ({ currentFilter, value }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
-
   const [totalPages, setTotalPages] = useState(0);
+
+  const { searchMovies, getRatedMovies } = MDBAPIService();
+
+  // Обнуление страницы при смене фильтра или поискового запроса
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [currentFilter, value]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      try {
+        if (currentFilter === 'All') {
+          console.log('Fetching all movies');
+          const response = await searchMovies('return', currentPage);
+          if (response && response.results) {
+            setMovies(response.results);
+            setTotalPages(response.total_results);
+          } else {
+            setMovies([]);
+          }
+        } else if (currentFilter === 'Search') {
+          if (value.trim() === '') {
+            setMovies([]);
+            setTotalPages(0);
+            return;
+          }
+          const response = await searchMovies(value, currentPage);
+          if (response && response.results) {
+            setMovies(response.results);
+            setTotalPages(response.total_results);
+          } else {
+            setMovies([]);
+          }
+        } else if (currentFilter === 'Rated') {
+          const response = await getRatedMovies(currentPage);
+          if (response && response.length > 0) {
+            setMovies(response); // Устанавливаем movies для отрисовки
+            setTotalPages(response.length);
+          } else {
+            setMovies([]);
+            setTotalPages(0);
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке фильмов:', error);
+        setMovies([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentFilter, value, currentPage]);
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    console.log('Page changed to:', page);
   };
-  const changeTotalPage = (total) => {
-    setTotalPages(total);
-  };
-  useEffect(() => {
-    const { searchMovies, getRatedMovies } = MDBAPIService();
-    const fetchMovies = async () => {
-      try {
-        const response = await searchMovies('return', currentPage);
-        const ratedMoviesResponse = await getRatedMovies();
-        if (response && response.results) {
-          console.log('Rated movies response:', ratedMoviesResponse);
-          setMovies(response.results);
-          console.log('Полученные фильмы:', response.results);
-          changeTotalPage(response.total_results);
-        } else {
-          console.error('Некорректный ответ от API:', response);
-        }
-      } catch (error) {
-        console.error('Ошибка при получении фильмов:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
-  }, [currentPage]);
-
-  useEffect(() => {
-    const fetchMoviesBySearch = async () => {
-      if (value.trim() === '') {
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      const { searchMovies } = MDBAPIService();
-      try {
-        const response = await searchMovies(value, currentPage); // ✅ теперь передаётся и page
-        if (response && response.results) {
-          setMovies(response.results);
-          changeTotalPage(response.total_results); // ✅ не забудь обновить общее число страниц
-          console.log('Полученные фильмы по поиску:', response.total_results);
-        } else {
-          console.error('Некорректный ответ от API при поиске:', response);
-        }
-      } catch (error) {
-        console.error('Ошибка при поиске фильмов:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (value && currentFilter === 'Search') {
-      fetchMoviesBySearch();
-      console.log('Поисковый запрос:', value);
-    }
-  }, [value, currentFilter, currentPage]); // ✅ добавлен page в зависимости
-
-  const Allelements = movies.map((movie) => (
-    <MovieCard
-      key={movie.id}
-      id={movie.id}
-      img={movie.poster_path}
-      title={movie.title}
-      description={movie.overview}
-      gengres={movie.genre_ids} // Пока genre_ids — это массив id. Позже можно будет мапить их в названия.
-      datePublished={movie.release_date}
-      rate={movie.vote_average}
-    />
-  ));
-  const ratedMovies = JSON.parse(localStorage.getItem('rated-movies')) || [];
-  const ratedElements = ratedMovies.map((movie) => (
+  const content = movies.map((movie) => (
     <MovieCard
       key={movie.id}
       id={movie.id}
@@ -96,31 +79,23 @@ const MoviesList = ({ currentFilter, value }) => {
       description={movie.overview}
       gengres={movie.genre_ids}
       datePublished={movie.release_date}
-      rate={movie.vote_average} // Передаем пользовательский рейтинг, если он есть
+      rate={movie.vote_average}
     />
   ));
-  let content = null;
-  if (currentFilter === 'Rated') {
-    console.log('Rated movies:', ratedElements);
-    content = ratedElements;
-  } else {
-    content = Allelements;
-  }
 
   return (
     <div className="movies-list">
       {loading && <Spinner />}
-
       {!loading && movies.length === 0 && <div className="no-movies">Фильмы не найдены</div>}
-
       {!loading && movies.length > 0 && content}
-      {currentFilter === 'Search' && (
+
+      {totalPages > 0 && (
         <Pagination
           className="pagination"
           current={currentPage}
-          total={totalPages} // Умножаем на 10, так как API возвращает 10 элементов на страницу
+          total={totalPages}
           onChange={handlePageChange}
-          pageSize={10} // Количество элементов на странице
+          pageSize={10}
         />
       )}
     </div>

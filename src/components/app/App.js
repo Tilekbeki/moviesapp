@@ -7,10 +7,11 @@ import MoviesList from '../movies-list/MoviesList';
 import SearchPanel from '../search-panel/searchPanel';
 import MDBAPIService from '../../services/MDBAPIService';
 import GenresProvider from '../context/GenresProvider';
+
 import './App.scss';
 
 function App() {
-  const [currentFilter, setCurrentFilter] = useState('Search');
+  const [currentFilter, setCurrentFilter] = useState('All');
   const { Header, Content } = Layout;
   const { checkGuestSession } = MDBAPIService();
   const [searchValue, setSearchValue] = useState('');
@@ -23,11 +24,25 @@ function App() {
   };
 
   const onFilterChange = (value) => {
-    setCurrentFilter(value);
+    console.log('Filter changed:', value === 'Search' && searchValue.trim() === '');
+    if (value === 'Search' && searchValue.trim() === '') {
+      setSearchValue('');
+
+      setCurrentFilter('All');
+      setSearchValue('');
+    } else {
+      setCurrentFilter(value);
+      setSearchValue('');
+    }
   };
 
   const handleClick = debounce((text) => {
     console.log('click happened!', text);
+    if (text.trim() === '') {
+      setCurrentFilter('All');
+    } else {
+      setCurrentFilter('Search');
+    }
     setSearchValue(text);
   }, 500);
 
@@ -35,7 +50,7 @@ function App() {
     <Layout style={layoutStyle}>
       <Header className="header">
         <Filter onFilterChange={onFilterChange} />
-        {currentFilter === 'Search' ? <SearchPanel handleClick={handleClick} /> : null}
+        {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
       </Header>
       <Content className="main-content">
         <GenresProvider>
