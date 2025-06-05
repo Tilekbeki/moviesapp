@@ -125,6 +125,7 @@ const MDBAPIService = () => {
     if (response && response.results) {
       return response.results;
     } else {
+      console.log(`/guest_session/${sessionId}/rated/movies?language=en-US&page=${page}`);
       console.error('Ошибка при получении рейтингов фильмов:', response);
       return [];
     }

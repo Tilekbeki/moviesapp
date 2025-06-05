@@ -6,18 +6,17 @@ import Spinner from '../spinner/Spinner';
 import MovieCard from '../movie-card/MovieCard';
 import MDBAPIService from '../../services/MDBAPIService';
 
-const MoviesList = ({ currentFilter, value }) => {
+const MoviesList = ({ currentFilter, value, currentPage, handlePageChange }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
   const { searchMovies, getRatedMovies } = MDBAPIService();
 
-  // Обнуление страницы при смене фильтра или поискового запроса
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [currentFilter, value]);
+  // // Обнуление страницы при смене фильтра или поискового запроса
+  // useEffect(() => {
+  //   handlePageChange(1);
+  // }, [currentFilter, value]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,9 +66,6 @@ const MoviesList = ({ currentFilter, value }) => {
     fetchData();
   }, [currentFilter, value, currentPage]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
   const content = movies.map((movie) => (
     <MovieCard
       key={movie.id}
@@ -84,21 +80,16 @@ const MoviesList = ({ currentFilter, value }) => {
   ));
 
   return (
-    <div className="movies-list">
-      {loading && <Spinner />}
-      {!loading && movies.length === 0 && <div className="no-movies">Фильмы не найдены</div>}
-      {!loading && movies.length > 0 && content}
-
+    <>
+      <div className="movies-list">
+        {loading && <Spinner />}
+        {!loading && movies.length === 0 && <div className="no-movies">Фильмы не найдены</div>}
+        {!loading && movies.length > 0 && content}
+      </div>
       {totalPages > 0 && (
-        <Pagination
-          className="pagination"
-          current={currentPage}
-          total={totalPages}
-          onChange={handlePageChange}
-          pageSize={10}
-        />
+        <Pagination className="pagination" current={currentPage} total={totalPages} onChange={handlePageChange} />
       )}
-    </div>
+    </>
   );
 };
 

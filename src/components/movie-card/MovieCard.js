@@ -49,6 +49,13 @@ const MovieCard = (props) => {
     return words.slice(0, maxWords).join(' ') + ' ...';
   };
 
+  const raitingColor = (value) => {
+    if (value >= 0 && value < 3) return '#E90000';
+    if (value >= 3 && value < 5) return '#E97E00';
+    if (value >= 5 && value < 7) return '#E9D100';
+    return '#66E900';
+  };
+
   return (
     <div className="movie-card">
       <img className="movie-cover" src={changedImg} />
@@ -65,7 +72,9 @@ const MovieCard = (props) => {
         value={userRating}
         onChange={(value) => handleRatingChange(value, id, title, description, gengres, datePublished, rate)}
       />
-      <div className="movie-raiting">{Math.round(rate * 10) / 10}</div>
+      <div className="movie-raiting" style={{ borderColor: raitingColor(Math.round(rate * 10) / 10) }}>
+        {Math.round(rate * 10) / 10}
+      </div>
     </div>
   );
 };

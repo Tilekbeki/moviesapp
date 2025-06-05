@@ -15,6 +15,8 @@ function App() {
   const { Header, Content } = Layout;
   const { checkGuestSession } = MDBAPIService();
   const [searchValue, setSearchValue] = useState('');
+
+  const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
     checkGuestSession().then((response) => console.log(response));
   }, []);
@@ -24,6 +26,7 @@ function App() {
   };
 
   const onFilterChange = (value) => {
+    handlePageChange(1); //Сбросил страницу наконец-то
     console.log('Filter changed:', value === 'Search' && searchValue.trim() === '');
     if (value === 'Search' && searchValue.trim() === '') {
       setSearchValue('');
@@ -35,7 +38,10 @@ function App() {
       setSearchValue('');
     }
   };
-
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    console.log('Page changed to:', page);
+  };
   const handleClick = debounce((text) => {
     console.log('click happened!', text);
     if (text.trim() === '') {
@@ -54,7 +60,12 @@ function App() {
       </Header>
       <Content className="main-content">
         <GenresProvider>
-          <MoviesList currentFilter={currentFilter} value={searchValue} page={1} />
+          <MoviesList
+            currentFilter={currentFilter}
+            value={searchValue}
+            currentPage={currentPage}
+            handlePageChange={handlePageChange}
+          />
         </GenresProvider>
       </Content>
     </Layout>
