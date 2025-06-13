@@ -27,6 +27,14 @@ body {
     gap: 40px;
 }
 
+:where(.css-1m2bkf9).ant-layout-header {
+    min-height: 64px;
+    padding: 0 50px;
+    color: rgba(0, 0, 0, 0.88);
+    line-height: 64px;
+    background: #001529;
+}
+
 @media (max-width: 1200px) {
     .header {
         width: 100%;
