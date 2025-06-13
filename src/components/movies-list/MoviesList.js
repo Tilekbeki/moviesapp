@@ -10,7 +10,7 @@ const MoviesList = ({ currentFilter, value, currentPage, handlePageChange }) => 
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
-
+  const [error, setError] = useState(null);
   const { searchMovies, getRatedMovies } = MDBAPIService();
 
   // // Обнуление страницы при смене фильтра или поискового запроса
@@ -24,7 +24,6 @@ const MoviesList = ({ currentFilter, value, currentPage, handlePageChange }) => 
 
       try {
         if (currentFilter === 'All') {
-          console.log('Fetching all movies');
           const response = await searchMovies('return', currentPage);
           if (response && response.results) {
             setMovies(response.results);
@@ -58,6 +57,11 @@ const MoviesList = ({ currentFilter, value, currentPage, handlePageChange }) => 
       } catch (error) {
         console.error('Ошибка при загрузке фильмов:', error);
         setMovies([]);
+        if (!navigator.onLine) {
+          setError('Отсутствует подключение к интернету');
+        } else {
+          setError('Не удалось загрузить данные. Попробуйте позже.');
+        }
       } finally {
         setLoading(false);
       }
@@ -83,7 +87,7 @@ const MoviesList = ({ currentFilter, value, currentPage, handlePageChange }) => 
     <>
       <div className="movies-list">
         {loading && <Spinner />}
-        {!loading && movies.length === 0 && <div className="no-movies">Фильмы не найдены</div>}
+        {!loading && movies.length === 0 && !error && <div className="no-movies">Фильмы не найдены</div>}
         {!loading && movies.length > 0 && content}
       </div>
       {totalPages > 0 && (

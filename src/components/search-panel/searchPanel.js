@@ -6,7 +6,6 @@ const SearchPanel = ({ handleClick }) => {
   const handleSearchChange = (e) => {
     setSearchMovie(e.target.value);
     handleClick(e.target.value);
-    console.log('Поиск:', e.target.value);
   };
   return <Input placeholder="Type to search..." value={searchMovie} onInput={(e) => handleSearchChange(e)} />;
 };

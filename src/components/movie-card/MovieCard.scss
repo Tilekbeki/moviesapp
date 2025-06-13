@@ -137,6 +137,7 @@
 
         &-card {
             grid-template-columns: 60px 268px;
+            width: 388px;
         }
 
         &-header {
@@ -150,6 +151,21 @@
 
         &-rate {
             bottom: 20px;
+        }
+    }
+
+}
+
+@media (max-width: 568px) {
+    .main-content {
+        padding: 0;
+    }
+
+    .movie {
+
+        &-card {
+            grid-template-columns: 60px 268px;
+            width: 100%;
         }
     }
 

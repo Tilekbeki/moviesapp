@@ -19,7 +19,6 @@ const Filter = ({ onFilterChange }) => {
 
   const onChange = (key) => {
     const filterValue = key === '1' ? 'Search' : 'Rated';
-    console.log(filterValue);
     onFilterChange(filterValue);
   };
 

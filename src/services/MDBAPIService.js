@@ -59,7 +59,7 @@ const MDBAPIService = () => {
     }
 
     const newSession = await createGuestSession();
-    return newSession.success ? newSession.id : null;
+    return newSession.success ? newSession.id : 'Ошибка создания гостевой сессии';
   };
   const getGenres = async () => {
     const url = '/genre/movie/list?language=en';
@@ -82,7 +82,6 @@ const MDBAPIService = () => {
     const title = encodeURIComponent(text);
     const url = `/search/movie?query=${title}&include_adult=false&language=en-US&page=${page}`;
     const response = await getResource(url);
-    console.log(response.results);
     return response;
   };
   const rateMovie = async (movieId, rating) => {
@@ -105,7 +104,6 @@ const MDBAPIService = () => {
 
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data, 'rate response');
       return data;
     } catch (error) {
       console.error('Ошибка при отправке рейтинга фильма:', error);
@@ -125,7 +123,6 @@ const MDBAPIService = () => {
     if (response && response.results) {
       return response.results;
     } else {
-      console.log(`/guest_session/${sessionId}/rated/movies?language=en-US&page=${page}`);
       console.error('Ошибка при получении рейтингов фильмов:', response);
       return [];
     }

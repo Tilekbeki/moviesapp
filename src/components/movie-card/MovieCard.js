@@ -22,7 +22,6 @@ const MovieCard = (props) => {
   useEffect(() => {
     const userSavedRating = localStorage.getItem(`rated-movie-${id}`);
     if (userSavedRating) {
-      console.log(true);
       setUserRating(Number(userSavedRating));
     }
   }, []);

@@ -7,7 +7,7 @@ import MoviesList from '../movies-list/MoviesList';
 import SearchPanel from '../search-panel/searchPanel';
 import MDBAPIService from '../../services/MDBAPIService';
 import GenresProvider from '../context/GenresProvider';
-
+import ErrorBoundary from '../error-boundary/ErrorBoundary';
 import './App.scss';
 
 function App() {
@@ -15,10 +15,12 @@ function App() {
   const { Header, Content } = Layout;
   const { checkGuestSession } = MDBAPIService();
   const [searchValue, setSearchValue] = useState('');
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [errorMessage, setErrorMessage] = useState('');
   useEffect(() => {
-    checkGuestSession().then((response) => console.log(response));
+    checkGuestSession()
+      .then((response) => console.log(response))
+      .catch(() => setErrorMessage('Ошибка соединения'));
   }, []);
   const layoutStyle = {
     minHeight: '100vh',
@@ -27,7 +29,6 @@ function App() {
 
   const onFilterChange = (value) => {
     handlePageChange(1); //Сбросил страницу наконец-то
-    console.log('Filter changed:', value === 'Search' && searchValue.trim() === '');
     if (value === 'Search' && searchValue.trim() === '') {
       setSearchValue('');
 
@@ -40,10 +41,8 @@ function App() {
   };
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    console.log('Page changed to:', page);
   };
   const handleClick = debounce((text) => {
-    console.log('click happened!', text);
     if (text.trim() === '') {
       setCurrentFilter('All');
     } else {
@@ -51,24 +50,29 @@ function App() {
     }
     setSearchValue(text);
   }, 500);
-
   return (
-    <Layout style={layoutStyle}>
-      <Header className="header">
-        <Filter onFilterChange={onFilterChange} />
-        {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
-      </Header>
-      <Content className="main-content">
-        <GenresProvider>
-          <MoviesList
-            currentFilter={currentFilter}
-            value={searchValue}
-            currentPage={currentPage}
-            handlePageChange={handlePageChange}
-          />
-        </GenresProvider>
-      </Content>
-    </Layout>
+    <ErrorBoundary>
+      <Layout style={layoutStyle}>
+        <Header className="header">
+          <Filter onFilterChange={onFilterChange} />
+          {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
+        </Header>
+        <Content className="main-content">
+          <GenresProvider>
+            {!errorMessage ? (
+              <MoviesList
+                currentFilter={currentFilter}
+                value={searchValue}
+                currentPage={currentPage}
+                handlePageChange={handlePageChange}
+              />
+            ) : (
+              errorMessage
+            )}
+          </GenresProvider>
+        </Content>
+      </Layout>
+    </ErrorBoundary>
   );
 }
 
