@@ -7,7 +7,6 @@ import MoviesList from '../movies-list/MoviesList';
 import SearchPanel from '../search-panel/searchPanel';
 import MDBAPIService from '../../services/MDBAPIService';
 import GenresProvider from '../context/GenresProvider';
-import ErrorBoundary from '../error-boundary/ErrorBoundary';
 import './App.scss';
 
 function App() {
@@ -51,28 +50,26 @@ function App() {
     setSearchValue(text);
   }, 500);
   return (
-    <ErrorBoundary>
-      <Layout style={layoutStyle}>
-        <Header className="header">
-          <Filter onFilterChange={onFilterChange} />
-          {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
-        </Header>
-        <Content className="main-content">
-          <GenresProvider>
-            {!errorMessage ? (
-              <MoviesList
-                currentFilter={currentFilter}
-                value={searchValue}
-                currentPage={currentPage}
-                handlePageChange={handlePageChange}
-              />
-            ) : (
-              errorMessage
-            )}
-          </GenresProvider>
-        </Content>
-      </Layout>
-    </ErrorBoundary>
+    <Layout style={layoutStyle}>
+      <Header className="header">
+        <Filter onFilterChange={onFilterChange} />
+        {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
+      </Header>
+      <Content className="main-content">
+        <GenresProvider>
+          {!errorMessage ? (
+            <MoviesList
+              currentFilter={currentFilter}
+              value={searchValue}
+              currentPage={currentPage}
+              handlePageChange={handlePageChange}
+            />
+          ) : (
+            errorMessage
+          )}
+        </GenresProvider>
+      </Content>
+    </Layout>
   );
 }
 
