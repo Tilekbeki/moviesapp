@@ -25,7 +25,6 @@ function App() {
     minHeight: '100vh',
     background: '#F7F7F7',
   };
-
   const onFilterChange = (value) => {
     handlePageChange(1); //Сбросил страницу наконец-то
     if (value === 'Search' && searchValue.trim() === '') {
@@ -51,7 +50,7 @@ function App() {
   }, 500);
   return (
     <Layout style={layoutStyle}>
-      <Header className="header">
+      <Header className="header" style={{ minHeight: '64px' }}>
         <Filter onFilterChange={onFilterChange} />
         {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
       </Header>
