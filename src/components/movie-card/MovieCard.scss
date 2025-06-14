@@ -19,8 +19,14 @@
     &-gengres,
     &-date,
     &-description,
-    &-rate {
+    &-rate.my-component-rate.my-component-rate {
         padding: 0 20px;
+        margin-inline-end: 5px;
+        font-size: 17px;
+
+        li {
+            margin-inline-end: 2px;
+        }
     }
 
     &-raiting {
@@ -120,13 +126,14 @@
     }
 }
 
-:where(.css-dev-only-do-not-override-1m2bkf9).ant-rate {
-    font-size: 17px;
-}
+// :where(.css-dev-only-do-not-override-1m2bkf9).ant-rate {
+//     font-size: 17px;
+// }
 
-:where(.css-dev-only-do-not-override-1m2bkf9).ant-rate .ant-rate-star:not(:last-child) {
-    margin-inline-end: 5px;
-}
+// :where(.css-dev-only-do-not-override-1m2bkf9).ant-rate .ant-rate-star:not(:last-child) {
+//     margin-inline-end: 5px;
+//     font-size: 17px;
+// }
 
 :where(.css-dev-only-do-not-override-1m2bkf9).ant-tag {
     margin-inline-end: 0px;

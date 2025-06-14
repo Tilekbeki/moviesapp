@@ -11,7 +11,7 @@ import './App.scss';
 
 function App() {
   const [currentFilter, setCurrentFilter] = useState('All');
-  const { Header, Content } = Layout;
+  const { Content } = Layout;
   const { checkGuestSession } = MDBAPIService();
   const [searchValue, setSearchValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,10 +50,10 @@ function App() {
   }, 500);
   return (
     <Layout style={layoutStyle}>
-      <Header className="header" style={{ minHeight: '64px' }}>
+      <header className="header" style={{ minHeight: '64px' }}>
         <Filter onFilterChange={onFilterChange} />
         {currentFilter === 'Search' || currentFilter === 'All' ? <SearchPanel handleClick={handleClick} /> : null}
-      </Header>
+      </header>
       <Content className="main-content">
         <GenresProvider>
           {!errorMessage ? (

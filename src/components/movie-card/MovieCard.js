@@ -66,7 +66,7 @@ const MovieCard = (props) => {
       <Paragraph className="movie-description">{truncateByWords(description, 20)}</Paragraph>
 
       <Rate
-        className="movie-rate"
+        className="movie-rate  my-component-rate my-component-rate"
         count={10}
         value={userRating}
         onChange={(value) => handleRatingChange(value, id, title, description, gengres, datePublished, rate)}
